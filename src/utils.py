@@ -1,4 +1,5 @@
 import datetime
+import json
 
 
 def modify_account_number(account):
@@ -24,7 +25,7 @@ def modify_date(line):
     return operation_date.strftime('%d.%m.%Y')
 
 
-def show_operation(operation):
+def show_operation(operation_):
     """
     Выводит информацию об операции в формате:
 
@@ -32,16 +33,41 @@ def show_operation(operation):
     <откуда> -> <куда>
     <сумма перевода> <валюта>
 
-    :param operation: dictionary
+    :param operation_: dictionary
     :return: f-string
     """
-    operation_date = modify_date(operation['date'])
-    direction_to = modify_account_number(operation['to'])
-    if 'from' in operation:
-        direction = modify_account_number(operation['from']) + ' -> ' + direction_to
+    operation_date = modify_date(operation_['date'])
+    direction_to = modify_account_number(operation_['to'])
+    if 'from' in operation_:
+        direction = modify_account_number(operation_['from']) + ' -> ' + direction_to
     else:
         direction = direction_to
-    amount = operation['operationAmount']['amount']
-    currency = operation['operationAmount']['currency']['name']
+    amount = operation_['operationAmount']['amount']
+    currency = operation_['operationAmount']['currency']['name']
 
-    return f"{operation_date} {operation['description']}\n{direction}\n{amount} {currency}"
+    return f"{operation_date} {operation_['description']}\n{direction}\n{amount} {currency}"
+
+
+def select_executed_operations(input_file):
+    """
+    Выбирает из файла только выполненные клиентом операций
+    :param input_file: file.json
+    :return: list of dictionaries
+    """
+    with open(input_file, 'r', encoding='utf-8') as file:
+        all_operations = json.load(file)
+    executed_operations_ = []
+    for operation_ in all_operations:
+        if operation_.get('state') == 'EXECUTED':
+            executed_operations_.append(operation_)
+    return executed_operations_
+
+
+def sort_operations_by_date(operations):
+    """
+    Сортирует список операций по дате от последней к первой
+    :param operations: list of dictionaries
+    :return: list of dictionaries
+    """
+    sorted_operations_ = sorted(operations, key=lambda x: x['date'], reverse=True)
+    return sorted_operations_
