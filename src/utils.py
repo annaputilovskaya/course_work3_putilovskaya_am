@@ -48,14 +48,24 @@ def show_operation(operation_):
     return f"{operation_date} {operation_['description']}\n{direction}\n{amount} {currency}"
 
 
-def select_executed_operations(input_file):
+def convert_json_to_list_of_dictionaries(input_file):
     """
-    Выбирает из файла только выполненные клиентом операций
-    :param input_file: file.json
-    :return: list of dictionaries
+    Преобразует файл .json в список словарей
+    :param input_file: json-file
+    :return: list_of_dictionaries
     """
     with open(input_file, 'r', encoding='utf-8') as file:
-        all_operations = json.load(file)
+        all_operations_ = json.load(file)
+    return all_operations_
+
+
+def select_executed_operations(all_operations):
+    """
+    Выбирает из списка только выполненные клиентом операций
+    и создает из них новый список
+    :param all_operations: list of dictionaries
+    :return: list of dictionaries
+    """
     executed_operations_ = []
     for operation_ in all_operations:
         if operation_.get('state') == 'EXECUTED':
